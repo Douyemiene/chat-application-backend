@@ -5,7 +5,6 @@ const sendMessage = async (data, socket, io) => {
     const msg = {name, message}
     if(room){
       io.to(room).emit('message', msg)
-      if(room != 'admin' && name != 'Timothy') io.to('admin').emit('message', msg)
     }else{
      socket.broadcast.emit('message', msg)
     }

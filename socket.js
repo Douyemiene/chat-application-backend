@@ -24,9 +24,8 @@ class Socket{
                 sendMessage(data, socket, this.io)
             })
 
-            socket.on('join-room', room => {
-                //for room in rooms
-                socket.join(room)
+            socket.on('join-room', rooms => {
+                rooms.forEach(room => socket.join(room))
             })
 
         })
