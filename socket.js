@@ -47,7 +47,7 @@ class Socket {
         this.io.use((socket, next) => {
             const token = socket.handshake.auth.token;
             if(token){
-                socket.disconnect
+                socket.disconnect()
             }
             console.log({ token })
             // ...
