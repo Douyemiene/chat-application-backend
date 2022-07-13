@@ -3,34 +3,34 @@ const { sendMessage } = require('./chatController')
 const { createClient } = require('redis');
 const { createAdapter } = require('@socket.io/redis-adapter');
 
-class Socket{
+class Socket {
     io = null
 
-    constructor(server){
+    constructor(server) {
         this.server = server
     }
 
-    async start(){
+    async start() {
         const pubClient = createClient({ url: "redis://localhost:6379" });
         const subClient = pubClient.duplicate();
         await Promise.all([pubClient.connect(), subClient.connect()]).then(async () => {
-           
+
             this.io = await new Server(this.server, {
                 cors: {
-                origins: ["http://localhost:3000","http://localhost:34669"]
-              }
+                    origins: ["http://localhost:3000", "http://localhost:34669"]
+                }
             });
             this.io.adapter(createAdapter(pubClient, subClient));
-          });
+        });
 
     }
 
-    async onConnection(){
+    async onConnection() {
         await this.start()
         this.io.on('connection', async (socket) => {
-   
+
             socket.on('input', data => {
-                console.log({data})
+                console.log({ data })
                 sendMessage(data, socket, this.io)
             })
 
@@ -40,11 +40,20 @@ class Socket{
 
             socket.on("disconnecting", () => {
                 console.log(socket.rooms); // the Set contains at least the socket ID
-              });
+            });
 
         })
+
+        this.io.use((socket, next) => {
+            const token = socket.handshake.auth.token;
+            if(token){
+                socket.disconnect
+            }
+            console.log({ token })
+            // ...
+        });
     }
-    
+
 }
 
 module.exports = Socket
